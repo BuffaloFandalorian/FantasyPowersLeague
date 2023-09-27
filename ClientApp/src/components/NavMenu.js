@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import logo from '../images/logo.png';
+import LoginWithGoogle from './google/GoogleLogin';
 
 export class NavMenu extends Component {
   static displayName = NavMenu.name;
@@ -11,7 +12,8 @@ export class NavMenu extends Component {
 
     this.toggleNavbar = this.toggleNavbar.bind(this);
     this.state = {
-      collapsed: true
+      collapsed: true,
+      loggedIn :false
     };
   }
 
@@ -19,6 +21,16 @@ export class NavMenu extends Component {
     this.setState({
       collapsed: !this.state.collapsed
     });
+  }
+
+  loginCallback = (loginSuccess) => {
+    if(loginSuccess){
+      this.setState({ loggedIn: true });
+    }
+  }
+
+  logout = () => {
+    this.setState({ loggedIn: false });
   }
 
   render() {
@@ -37,16 +49,8 @@ export class NavMenu extends Component {
           <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
             <ul className="navbar-nav flex-grow">
               <NavItem>
-                <NavLink tag={Link} to="/">Home</NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink tag={Link} to="/counter">Counter</NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink tag={Link} to="/fetch-data">Fetch data</NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink tag={Link} to="/login">Login</NavLink>
+                {!this.state.loggedIn && <LoginWithGoogle onSuccessfulLogin={this.loginCallback} /> }
+                {this.state.loggedIn && <NavLink onClick={()=> this.logout()}>Logout</NavLink>}
               </NavItem>
             </ul>
           </Collapse>
