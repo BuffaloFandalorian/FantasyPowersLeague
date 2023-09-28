@@ -1,4 +1,5 @@
 using FantasyPowersLeague.Models;
+using Google.Apis.Auth;
 
 namespace FantasyPowersLeague.Services
 {
@@ -11,7 +12,9 @@ namespace FantasyPowersLeague.Services
         }
         public async Task<AppIdentity> LoginWithGoogle(GoogleLoginDto googleLoginDto)
         {
-            return new AppIdentity { Credential = googleLoginDto.Credential, SessionId = Guid.NewGuid().ToString()};
+            //validate token
+            GoogleJsonWebSignature.Payload payload =  await GoogleJsonWebSignature.ValidateAsync(googleLoginDto.Credential);
+            return new AppIdentity { TokenIsValid = (payload != null), Credential = googleLoginDto.Credential, SessionId = Guid.NewGuid().ToString()};
         }
     }
 }

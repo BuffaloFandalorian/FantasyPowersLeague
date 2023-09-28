@@ -4,5 +4,6 @@ namespace FantasyPowersLeague.Models
     {
         public string Credential { get;set; }
         public string SessionId { get; set; }
+        public bool TokenIsValid { get;set; }
     }
 }
