@@ -5,8 +5,7 @@ const LoginWithGoogle = (props) => {
   useEffect(() => {
 
     window.onGoogleSuccess = (response) => {
-      console.log("Success: ", response);
-      props.onSuccessfulLogin(true);
+      props.onSuccessfulLogin(response);
     }
 
     // Inject the google provided script 

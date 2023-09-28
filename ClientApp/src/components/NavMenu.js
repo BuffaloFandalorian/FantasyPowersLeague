@@ -11,6 +11,9 @@ export class NavMenu extends Component {
     super(props);
 
     this.toggleNavbar = this.toggleNavbar.bind(this);
+    this.loginCallback = this.loginCallback.bind(this);
+    this.logoutCallback = this.logoutCallback.bind(this);
+
     this.state = {
       collapsed: true,
       loggedIn :false
@@ -24,13 +27,13 @@ export class NavMenu extends Component {
   }
 
   loginCallback = (loginSuccess) => {
-    if(loginSuccess){
-      this.setState({ loggedIn: true });
-    }
+    this.setState({ loggedIn: true });
+    this.props.loginCallback(loginSuccess);
   }
 
-  logout = () => {
+  logoutCallback = () => {
     this.setState({ loggedIn: false });
+    this.props.logoutCallback();
   }
 
   render() {
@@ -50,7 +53,7 @@ export class NavMenu extends Component {
             <ul className="navbar-nav flex-grow">
               <NavItem>
                 {!this.state.loggedIn && <LoginWithGoogle onSuccessfulLogin={this.loginCallback} /> }
-                {this.state.loggedIn && <NavLink onClick={()=> this.logout()}>Logout</NavLink>}
+                {this.state.loggedIn && <NavLink onClick={()=> this.logoutCallback()}>Logout</NavLink>}
               </NavItem>
             </ul>
           </Collapse>

@@ -5,7 +5,7 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
   env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'http://localhost:21033';
 
 const context = [
-  "/weatherforecast",
+  "/api/",
 ];
 
 const onError = (err, req, resp, target) => {
@@ -13,6 +13,9 @@ const onError = (err, req, resp, target) => {
 }
 
 module.exports = function (app) {
+
+  console.log("Middleware Listening on", target);
+
   const appProxy = createProxyMiddleware(context, {
     proxyTimeout: 10000,
     target: target,
