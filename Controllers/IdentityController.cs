@@ -27,7 +27,7 @@ public class IdentityController : ControllerBase
 
     [HttpPost]
     [Route("google-login")]
-    [ProducesResponseType(typeof(AppIdentity), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> GoogleLogin(GoogleLoginDto googleLoginDto)
     {
         try

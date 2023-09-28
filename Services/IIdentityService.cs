@@ -4,7 +4,8 @@ namespace FantasyPowersLeague.Services
 {
     public interface IIdentityService
     {
-        Task<AppIdentity> LoginWithGoogle(GoogleLoginDto googleLoginDto);
+        Task<string> LoginWithGoogle(GoogleLoginDto googleLoginDto);
+        string GetJWTToken(AppIdentity appIdentity);
     }
 }
 
