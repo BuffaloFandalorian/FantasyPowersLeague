@@ -7,6 +7,11 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace FantasyPowersLeague.Services
 {
+    public interface IIdentityService
+    {
+        Task<LoginResultDto> LoginWithGoogle(GoogleLoginDto googleLoginDto);
+        Task<LoginResultDto> RefreshToken(TokenRefreshDto tokenRefreshDto);
+    }
     public class IdentityService : IIdentityService
     {
         private ILogger<IIdentityService> _logger;
@@ -18,7 +23,8 @@ namespace FantasyPowersLeague.Services
             _config = configuration;
         }
 
-        public string GetJWTToken(AppIdentity appIdentity)
+        #region internal methods
+        protected string GetJWTToken(AppIdentity appIdentity)
         {
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
@@ -49,8 +55,9 @@ namespace FantasyPowersLeague.Services
             
             return stringToken;
         }
+        #endregion
 
-        public async Task<string> LoginWithGoogle(GoogleLoginDto googleLoginDto)
+        public async Task<LoginResultDto> LoginWithGoogle(GoogleLoginDto googleLoginDto)
         {
             try
             {
@@ -61,8 +68,10 @@ namespace FantasyPowersLeague.Services
                 {
                     throw new Exception("Payload from Google is null");
                 }
+
+                var expiration = DateTimeOffset.FromUnixTimeSeconds(payload?.ExpirationTimeSeconds ?? 0).DateTime;
                 
-                if(DateTimeOffset.FromUnixTimeSeconds(payload?.ExpirationTimeSeconds ?? 0).DateTime <= DateTime.UtcNow)
+                if(expiration <= DateTime.UtcNow)
                 {
                     throw new Exception("Token is Expired");
                 }
@@ -84,13 +93,24 @@ namespace FantasyPowersLeague.Services
                     throw new Exception("Token generated is null or whitespace.");
                 }
 
-                return token;
+                var loginResponse = new LoginResultDto
+                {
+                     token = token,
+                     expiration = payload.ExpirationTimeSeconds
+                };
+
+                return loginResponse;
             }
             catch(Exception ex)
             {
                 _logger.LogError($"Error Generating JWT: {ex.Message}");
                 throw ex;
             }
+        }
+
+        public async Task<LoginResultDto> RefreshToken(TokenRefreshDto tokenRefreshDto)
+        {
+            return new LoginResultDto();
         }
     }
 }

@@ -2,19 +2,35 @@ import React, { Component } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import { Layout } from './components/Layout';
-import IdentityService from './servcies/IdentityService';
+import IdentityService from './services/IdentityService';
 import './custom.css';
 
 export default class App extends Component {
 
   static displayName = App.name;
 
-  loginCallback(response){
-    IdentityService.LoginGoogle(response.clientId, response.credential).then( (result) => {console.log(result)} );
+  constructor(props){
+    super(props);
+    this.state = {
+      loggedIn : false
+    };
+  }
+  
+  loginCallback = async (response) => {
+    const loggedIn = await IdentityService.LoginGoogle(response.clientId, response.credential);
+    this.initiateLogin();
   }
 
-  logoutCallback(response){
-    //todo
+  logoutCallback = (response) => {
+    this.initiateLogout();
+  }
+
+  initiateLogin = () => {
+    this.setState({ loggedIn : true});
+  }
+
+  initiateLogout = () => {
+    this.setState({ loggedIn : false});
   }
 
   render() {
