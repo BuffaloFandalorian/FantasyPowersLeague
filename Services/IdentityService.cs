@@ -16,11 +16,13 @@ namespace FantasyPowersLeague.Services
     {
         private ILogger<IIdentityService> _logger;
         private IConfiguration _config;
+        private IUserService _userService;
 
-        public IdentityService(ILogger<IdentityService> logger, IConfiguration configuration)
+        public IdentityService(ILogger<IdentityService> logger, IConfiguration configuration, IUserService userService)
         {
             _logger = logger;
             _config = configuration;
+            _userService = userService;
         }
 
         #region internal methods
@@ -54,6 +56,30 @@ namespace FantasyPowersLeague.Services
             var stringToken = tokenHandler.WriteToken(token);
             
             return stringToken;
+        }
+
+        private async Task<string> GetOrRegisterUser(string username)
+        {
+            try
+            {
+                var user = await _userService.GetUserByUsernameAsync(username);
+                if(user == null)
+                {
+                    var newUser = new UserDto
+                    {
+                        username = username
+                    };
+                    await _userService.CreateUserAsync(newUser);
+                    user = await _userService.GetUserByUsernameAsync(username);
+                }
+                return user.id;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"GetOrRegisterUser: {ex.Message}");
+                throw ex;
+            }
+
         }
         #endregion
 
@@ -93,10 +119,18 @@ namespace FantasyPowersLeague.Services
                     throw new Exception("Token generated is null or whitespace.");
                 }
 
+                var userId = await GetOrRegisterUser(payload.Email);
+
+                if(userId == null)
+                {
+                    throw new Exception("Error registering or fetching user");
+                }
+
                 var loginResponse = new LoginResultDto
                 {
                      token = token,
-                     expiration = payload.ExpirationTimeSeconds
+                     expiration = payload.ExpirationTimeSeconds,
+                     userId = userId
                 };
 
                 return loginResponse;
