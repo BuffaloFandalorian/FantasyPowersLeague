@@ -16,7 +16,7 @@ export class NavMenu extends Component {
 
     this.state = {
       collapsed: true,
-      loggedIn :false
+      loggedInState : "LoggedOut"
     };
   }
 
@@ -26,14 +26,12 @@ export class NavMenu extends Component {
     });
   }
 
-  loginCallback = (loginSuccess) => {
-    this.setState({ loggedIn: true });
-    this.props.loginCallback(loginSuccess);
+  loginCallback = async (response) => {
+    this.setState({ loggedInState: await this.props.loginCallback(response)});
   }
 
-  logoutCallback = () => {
-    this.setState({ loggedIn: false });
-    this.props.logoutCallback();
+  logoutCallback = async () => {
+    this.setState({ loggedInState: await this.props.logoutCallback()});
   }
 
   render() {
@@ -52,8 +50,9 @@ export class NavMenu extends Component {
           <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
             <ul className="navbar-nav flex-grow">
               <NavItem>
-                {!this.state.loggedIn && <LoginWithGoogle onSuccessfulLogin={this.loginCallback} /> }
-                {this.state.loggedIn && <NavLink onClick={()=> this.logoutCallback()}>Logout</NavLink>}
+                {(this.state.loggedInState === "LoggedOut") && <LoginWithGoogle onSuccessfulLogin={this.loginCallback} /> }
+                {(this.state.loggedInState === "LoggedIn") && <NavLink onClick={()=> this.logoutCallback()}>Logout</NavLink>}
+                {(this.state.loggedInState ==="LoggingIn") && <NavLink >Logging In...</NavLink>}
               </NavItem>
             </ul>
           </Collapse>

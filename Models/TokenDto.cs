@@ -1,6 +1,6 @@
 namespace FantasyPowersLeague.Models
 {
-    public class TokenRefreshDto
+    public class TokenDto
     {
         public string token { get; set;}
     }

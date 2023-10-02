@@ -48,7 +48,7 @@ public class IdentityController : ControllerBase
     [HttpPost]
     [Route("token-refresh")]
     [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> TokenRefresh(TokenRefreshDto tokenRefreshDto)
+    public async Task<IActionResult> TokenRefresh(TokenDto tokenRefreshDto)
     {
         try
         {

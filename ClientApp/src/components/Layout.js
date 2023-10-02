@@ -12,18 +12,18 @@ export class Layout extends Component {
   }
 
 
-  loginCallback(response) {
-    this.props.loginCallback(response);
+  loginCallback = async (response) =>  {
+    return await this.props.loginCallback(response);
   }
 
-  logoutCallback(response) {
-    this.props.logoutCallback(response);
+  logoutCallback = async () => {
+    return await this.props.logoutCallback();
   }
 
   render() {
     return (
       <div>
-        <NavMenu loginCallback={this.loginCallback} logoutCallback={this.logoutCallback} />
+        <NavMenu loggedInState={this.props.loggedInState} loginCallback={this.loginCallback} logoutCallback={this.logoutCallback} />
         <Container tag="main">
           {this.props.children}
         </Container>

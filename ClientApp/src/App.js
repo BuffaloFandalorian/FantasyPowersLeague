@@ -12,30 +12,34 @@ export default class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      loggedIn : false
+      loggedInState : "LoggedOut"
     };
   }
   
   loginCallback = async (response) => {
+    this.setState({ loggedInState : "LoggingIn" });
     const loggedIn = await IdentityService.LoginGoogle(response.clientId, response.credential);
-    this.initiateLogin();
+    if(loggedIn){
+      this.setState({ loggedInState: "LoggedIn"});
+      return "LoggedIn";
+    }
+    else{
+      this.state.loggedInState = "LoggedOut";
+      //todo present error
+      this.initiateLogout();
+      return "LoggedOut";
+    }
   }
 
   logoutCallback = (response) => {
-    this.initiateLogout();
-  }
-
-  initiateLogin = () => {
-    this.setState({ loggedIn : true});
-  }
-
-  initiateLogout = () => {
-    this.setState({ loggedIn : false});
+    //todo logout
+    this.setState({ loggedInState: "LoggedOut"});
+    return "LoggedOut";
   }
 
   render() {
     return (
-      <Layout loginCallback={this.loginCallback} logoutCallback={this.logoutCallback}>
+      <Layout loggedInState={this.state.loggedInState} loginCallback={this.loginCallback} logoutCallback={this.logoutCallback}>
         <Routes>
           {AppRoutes.map((route, index) => {
             const { element, ...rest } = route;
