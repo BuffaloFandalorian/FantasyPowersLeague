@@ -4,12 +4,14 @@ import AppRoutes from './AppRoutes';
 import { Layout } from './components/Layout';
 import IdentityService from './services/IdentityService';
 import constants from './models/constants';
+import AlertFloat from './components/AlertFloat';
 import './custom.css';
 
 const App = (props) => {
 
   const displayName = App.name;
   const [loggedIn, setLogginState] = useState(constants.LoginState.LoggedOut);
+  const [alerts, setAlerts] = useState([]);
 
   useEffect(()=>{
     const timer = window.setInterval(() => checkLoggedIn(), 10000);
@@ -52,12 +54,14 @@ const App = (props) => {
     window.sessionStorage.clear();
     setLogginState(constants.LoginState.LoggedOut);
     window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedOut);
+    setAlerts([]);
+    setAlerts([...alerts, <AlertFloat />]);
     return constants.LoginState.LoggedOut;
   }
 
   return (
     <>
-    <Layout loggedInState={loggedIn} loginCallback={loginCallback} logoutCallback={logoutCallback}>
+    <Layout Alerts={alerts} loggedInState={loggedIn} loginCallback={loginCallback} logoutCallback={logoutCallback}>
       <Routes>
         {AppRoutes.map((route, index) => {
           const { element, ...rest } = route;

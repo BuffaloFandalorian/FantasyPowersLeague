@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Container } from 'reactstrap';
+import { Alert, Card, CardBody, Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
+import Alerts from './Alerts';
 
 export class Layout extends Component {
   static displayName = Layout.name;
@@ -24,6 +25,7 @@ export class Layout extends Component {
     return (
       <div>
         <NavMenu loggedInState={this.props.loggedInState} loginCallback={this.loginCallback} logoutCallback={this.logoutCallback} />
+        <Alerts Alerts={this.props.Alerts}></Alerts>
         <Container tag="main">
           {this.props.children}
         </Container>
