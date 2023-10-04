@@ -34,7 +34,7 @@ namespace FantasyPowersLeague.Services
         }
 
         #region internal methods
-        protected GeneratedTokenDto GetJWTToken(AppIdentity appIdentity, bool isRefresh = false, int expirationInMinutes = 5)
+        protected GeneratedTokenDto GetJWTToken(AppIdentity appIdentity, bool isRefresh = false, int expirationInMinutes = 10)
         {
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];

@@ -12,13 +12,21 @@ const App = (props) => {
   const [loggedIn, setLogginState] = useState(constants.LoginState.LoggedOut);
 
   useEffect(()=>{
-    const timer = window.setInterval(() => keepAlive(), 10000);
+    const timer = window.setInterval(() => checkLoggedIn(), 10000);
     return () => window.clearInterval(timer);
   });
 
   const keepAlive = () => {
     if(window.sessionStorage.getItem("loggedIn") == constants.LoginState.LoggedIn){
       IdentityService.KeepAlive();
+    }
+  }
+
+  const checkLoggedIn = () =>{
+    const currentState = window.sessionStorage.getItem("loggedIn");
+    if(currentState == null){
+      setLogginState(constants.LoginState.LoggedOut);
+      window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedOut);
     }
   }
   
@@ -41,6 +49,7 @@ const App = (props) => {
   }
 
   const logoutCallback = (response) => {
+    window.sessionStorage.clear();
     setLogginState(constants.LoginState.LoggedOut);
     window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedOut);
     return constants.LoginState.LoggedOut;
@@ -56,6 +65,7 @@ const App = (props) => {
         })}
       </Routes>
     </Layout>
+    <button onClick={keepAlive}>boop</button>
     </>
   );
 }

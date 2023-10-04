@@ -28,6 +28,7 @@ const IdentityService =  {
                 window.sessionStorage.setItem("refreshToken", loginResult.refreshToken);
                 return loginResult.token;
             }
+            window.sessionStorage.clear();
         }
     },
     KeepAlive: function(){
@@ -35,6 +36,7 @@ const IdentityService =  {
             if(response.status === 200){
             }
             else{
+                window.sessionStorage.clear();
             }
         });
     }

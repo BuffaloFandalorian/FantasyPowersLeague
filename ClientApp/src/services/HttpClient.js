@@ -5,6 +5,10 @@ const HttpClient = {
 
             const bearer = await AuthInterceptor.GetBearer();
 
+            if(bearer == null){
+                return null;
+            }
+
             const requestOptions = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'authorization' : `Bearer ${bearer}` },
@@ -14,6 +18,11 @@ const HttpClient = {
     },
     PostRawAuth: async function(payload, route) {
         const token = window.sessionStorage.getItem('token');
+
+        if(token == null){
+            return null;
+        }
+
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'authorization' : `Bearer ${token}` },
@@ -32,6 +41,10 @@ const HttpClient = {
     },
     Get: async function(route) {
         const bearer = await AuthInterceptor.GetBearer();
+
+        if(bearer == null){
+            return null;
+        }
 
         const requestOptions = {
             method: 'GET',

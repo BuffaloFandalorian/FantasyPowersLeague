@@ -10,11 +10,17 @@ const AuthInterceptor = {
         if(nowTime > currentExpirationDate - process.env.REACT_APP_TOKEN_REFRESH_SECONDS)
         {
             const refresh = await IdentityService.RefreshToken();
-            return refresh;
+
+            if(refresh.status !== null){
+                return refresh;
+            }
+            else{
+                window.sessionStorage.clear();
+                return null;
+            }
         }
         else
         {
-            console.log(`${currentExpirationDate - (nowTime + process.env.REACT_APP_TOKEN_REFRESH_SECONDS)}`)
             return window.sessionStorage.getItem("token");
         }
     }
