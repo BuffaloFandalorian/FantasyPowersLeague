@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddTransient<IRefreshTokenDatabase, RefreshTokenDatabase>();
+builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddTransient<IIdentityService,IdentityService>();
 builder.Services.AddTransient<IUserDatabase, UserDatabase>();
 builder.Services.AddTransient<IUserService, UserService>();

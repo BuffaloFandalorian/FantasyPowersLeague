@@ -1,20 +1,20 @@
-import HttpClient from "./HttpClient";
+import IdentityService from "./IdentityService";
 
 const AuthInterceptor = {
-    GetBearer : function () {
+    GetBearer : async function () {
         //check for expiration
         const currentExpirationDate = window.sessionStorage.getItem("expiration");
-        const nowTime = Date.now() / 1000;
-        if(nowTime > currentExpirationDate)
+        const currentDate = new Date();
+        const nowTime = currentDate.getTime() / 1000;
+
+        if(nowTime > currentExpirationDate - process.env.REACT_APP_TOKEN_REFRESH_SECONDS)
         {
-            //TODO: user session is expired, log them out...
-        }
-        else if(nowTime + process.env.TOKEN_REFRESH_SECONDS > currentExpirationDate)
-        {
-            //TODO: we will expire in 2 mintues, refresh the token
+            const refresh = await IdentityService.RefreshToken();
+            return refresh;
         }
         else
         {
+            console.log(`${currentExpirationDate - (nowTime + process.env.REACT_APP_TOKEN_REFRESH_SECONDS)}`)
             return window.sessionStorage.getItem("token");
         }
     }

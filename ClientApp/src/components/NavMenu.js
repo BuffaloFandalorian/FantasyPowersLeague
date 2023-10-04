@@ -3,6 +3,7 @@ import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from '
 import { Link } from 'react-router-dom';
 import logo from '../images/logo.png';
 import LoginWithGoogle from './google/GoogleLogin';
+import constants from '../models/constants';
 
 export class NavMenu extends Component {
   static displayName = NavMenu.name;
@@ -16,7 +17,7 @@ export class NavMenu extends Component {
 
     this.state = {
       collapsed: true,
-      loggedInState : "LoggedOut"
+      loggedInState : constants.LoginState.LoggedOut
     };
   }
 
@@ -50,9 +51,9 @@ export class NavMenu extends Component {
           <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
             <ul className="navbar-nav flex-grow">
               <NavItem>
-                {(this.state.loggedInState === "LoggedOut") && <LoginWithGoogle onSuccessfulLogin={this.loginCallback} /> }
-                {(this.state.loggedInState === "LoggedIn") && <NavLink onClick={()=> this.logoutCallback()}>Logout</NavLink>}
-                {(this.state.loggedInState ==="LoggingIn") && <NavLink >Logging In...</NavLink>}
+                {(this.state.loggedInState === constants.LoginState.LoggedOut) && <LoginWithGoogle onSuccessfulLogin={this.loginCallback} /> }
+                {(this.state.loggedInState === constants.LoginState.LoggedIn) && <NavLink onClick={()=> this.logoutCallback()}>Logout</NavLink>}
+                {(this.state.loggedInState === constants.LoginState.LoggingIn) && <NavLink >Logging In...</NavLink>}
               </NavItem>
             </ul>
           </Collapse>

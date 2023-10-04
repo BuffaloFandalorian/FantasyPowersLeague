@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using FantasyPowersLeague.Models;
 using Google.Apis.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FantasyPowersLeague.Services
@@ -33,7 +34,7 @@ namespace FantasyPowersLeague.Services
         }
 
         #region internal methods
-        protected GeneratedTokenDto GetJWTToken(AppIdentity appIdentity, bool isRefresh = false)
+        protected GeneratedTokenDto GetJWTToken(AppIdentity appIdentity, bool isRefresh = false, int expirationInMinutes = 5)
         {
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
@@ -49,7 +50,7 @@ namespace FantasyPowersLeague.Services
                     new Claim(JwtRegisteredClaimNames.Email, appIdentity.email),
                     new Claim(JwtRegisteredClaimNames.Jti, jti.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(5),
+                Expires = DateTime.UtcNow.AddMinutes(expirationInMinutes),
 
                 Issuer = issuer,
                 Audience = audience,
@@ -67,7 +68,7 @@ namespace FantasyPowersLeague.Services
                  isRefresh = isRefresh,
                  token = stringToken,
                  jti = jti,
-                 expiration = (long)(tokenDescriptor.Expires - new DateTime(1970, 1, 1)).Value.TotalSeconds
+                 expiration = ((DateTimeOffset)tokenDescriptor.Expires.Value).ToUnixTimeSeconds()
             };
         }
 
@@ -132,7 +133,7 @@ namespace FantasyPowersLeague.Services
                     throw new Exception("Token generated is null or whitespace.");
                 }
 
-                var refreshToken = GetJWTToken(appIdentity, true);
+                var refreshToken = GetJWTToken(appIdentity, true, 30);
 
                 if(String.IsNullOrWhiteSpace(refreshToken.token))
                 {
@@ -143,7 +144,7 @@ namespace FantasyPowersLeague.Services
                     //expire old refresh tokens
                     await _refreshTokenService.RemoveRefreshTokensAsync(payload.Email);
                     //store for refresh whitelisting
-                    await _refreshTokenService.CreateRefreshTokenAsync(new RefreshTokenDto { jti = refreshToken.jti.ToString() });
+                    await _refreshTokenService.CreateRefreshTokenAsync(new RefreshTokenDto { jti = refreshToken.jti.ToString(), user = payload.Email });
                 }
 
                 var userId = await GetOrRegisterUser(payload.Email);
@@ -159,7 +160,7 @@ namespace FantasyPowersLeague.Services
                 var loginResponse = new LoginResultDto
                 {
                      token = generatedToken.token,
-                     expiration = payload.ExpirationTimeSeconds,
+                     expiration = generatedToken.expiration,
                      userId = userId,
                      refreshToken = refreshToken.token
                 };
@@ -173,6 +174,7 @@ namespace FantasyPowersLeague.Services
             }
         }
 
+        [AllowAnonymous]
         public async Task<LoginResultDto> RefreshToken(TokenDto tokenRefreshDto)
         {
             try
@@ -210,7 +212,7 @@ namespace FantasyPowersLeague.Services
                 if(jtiRecord != null)
                 {
                     await _refreshTokenService.RemoveRefreshTokensAsync(jtiRecord.user); //expire all the existing tokens for this user
-                    var newRefreshToken = GetJWTToken(new AppIdentity { email = jtiRecord.user }, true);
+                    var newRefreshToken = GetJWTToken(new AppIdentity { email = jtiRecord.user }, true, 30);
                     await _refreshTokenService.CreateRefreshTokenAsync(new RefreshTokenDto{ jti = newRefreshToken.jti.ToString(), user = jtiRecord.user});
                     var newToken = GetJWTToken(new AppIdentity { email = jtiRecord.user }, false);
                     return new LoginResultDto { refreshToken = newRefreshToken.token, token = newToken.token, userId = jtiRecord.user, expiration = newToken.expiration };

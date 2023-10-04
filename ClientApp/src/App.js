@@ -1,52 +1,63 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import { Layout } from './components/Layout';
 import IdentityService from './services/IdentityService';
+import constants from './models/constants';
 import './custom.css';
 
-export default class App extends Component {
+const App = (props) => {
 
-  static displayName = App.name;
+  const displayName = App.name;
+  const [loggedIn, setLogginState] = useState(constants.LoginState.LoggedOut);
 
-  constructor(props){
-    super(props);
-    this.state = {
-      loggedInState : "LoggedOut"
-    };
+  useEffect(()=>{
+    const timer = window.setInterval(() => keepAlive(), 10000);
+    return () => window.clearInterval(timer);
+  });
+
+  const keepAlive = () => {
+    if(window.sessionStorage.getItem("loggedIn") == constants.LoginState.LoggedIn){
+      IdentityService.KeepAlive();
+    }
   }
   
-  loginCallback = async (response) => {
-    this.setState({ loggedInState : "LoggingIn" });
-    const loggedIn = await IdentityService.LoginGoogle(response.clientId, response.credential);
-    if(loggedIn){
-      this.setState({ loggedInState: "LoggedIn"});
-      return "LoggedIn";
+  const loginCallback = async (response) => {
+    //this.setState({ loggedInState : constants.LoginState.LoggingIn });
+    setLogginState(constants.LoginState.LoggingIn);
+    window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggingIn);
+    const googleLogin = await IdentityService.LoginGoogle(response.clientId, response.credential);
+    if(googleLogin){
+      setLogginState(constants.LoginState.LoggedIn);
+      window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedIn);
+      return constants.LoginState.LoggedIn;
     }
     else{
-      this.state.loggedInState = "LoggedOut";
+      setLogginState(constants.LoginState.LoggedOut);
+      window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedOut);
       //todo present error
-      this.initiateLogout();
-      return "LoggedOut";
+      return constants.LoginState.LoggedOut;
     }
   }
 
-  logoutCallback = (response) => {
-    //todo logout
-    this.setState({ loggedInState: "LoggedOut"});
-    return "LoggedOut";
+  const logoutCallback = (response) => {
+    setLogginState(constants.LoginState.LoggedOut);
+    window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedOut);
+    return constants.LoginState.LoggedOut;
   }
 
-  render() {
-    return (
-      <Layout loggedInState={this.state.loggedInState} loginCallback={this.loginCallback} logoutCallback={this.logoutCallback}>
-        <Routes>
-          {AppRoutes.map((route, index) => {
-            const { element, ...rest } = route;
-            return <Route key={index} {...rest} element={element} />;
-          })}
-        </Routes>
-      </Layout>
-    );
-  }
+  return (
+    <>
+    <Layout loggedInState={loggedIn} loginCallback={loginCallback} logoutCallback={logoutCallback}>
+      <Routes>
+        {AppRoutes.map((route, index) => {
+          const { element, ...rest } = route;
+          return <Route key={index} {...rest} element={element} />;
+        })}
+      </Routes>
+    </Layout>
+    </>
+  );
 }
+
+export default App;

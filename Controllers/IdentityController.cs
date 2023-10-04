@@ -46,7 +46,7 @@ public class IdentityController : ControllerBase
     }
 
     [HttpPost]
-    [Route("token-refresh")]
+    [Route("refresh-token")]
     [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> TokenRefresh(TokenDto tokenRefreshDto)
     {
@@ -54,6 +54,22 @@ public class IdentityController : ControllerBase
         {
             var refreshResponse = await _identityService.RefreshToken(tokenRefreshDto);
             return Ok(refreshResponse);
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return UnprocessableEntity();
+        } 
+    }
+
+    [HttpGet]
+    [Route("keep-alive")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult KeepAlive()
+    {
+        try
+        {
+            return Ok();
         }
         catch(Exception ex)
         {
