@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using FantasyPowersLeague.Services;
 using FantasyPowersLeague.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FantasyPowersLeague.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/identity")]
 public class IdentityController : ControllerBase
@@ -25,9 +27,10 @@ public class IdentityController : ControllerBase
         return Ok("Hello!");
     }
 
+    [AllowAnonymous]
     [HttpPost]
     [Route("google-login")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GoogleLogin(GoogleLoginDto googleLoginDto)
     {
         try
@@ -41,4 +44,38 @@ public class IdentityController : ControllerBase
             return UnprocessableEntity();
         }
     }
+
+    [HttpPost]
+    [Route("refresh-token")]
+    [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> TokenRefresh(TokenDto tokenRefreshDto)
+    {
+        try
+        {
+            var refreshResponse = await _identityService.RefreshToken(tokenRefreshDto);
+            return Ok(refreshResponse);
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return UnprocessableEntity();
+        } 
+    }
+
+    [HttpGet]
+    [Route("keep-alive")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult KeepAlive()
+    {
+        try
+        {
+            return Ok();
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return UnprocessableEntity();
+        } 
+    }
+
 }

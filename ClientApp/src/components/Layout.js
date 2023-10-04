@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Container } from 'reactstrap';
+import { Alert, Card, CardBody, Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
+import Alerts from './Alerts';
 
 export class Layout extends Component {
   static displayName = Layout.name;
@@ -12,18 +13,19 @@ export class Layout extends Component {
   }
 
 
-  loginCallback(response) {
-    this.props.loginCallback(response);
+  loginCallback = async (response) =>  {
+    return await this.props.loginCallback(response);
   }
 
-  logoutCallback(response) {
-    this.props.logoutCallback(response);
+  logoutCallback = async () => {
+    return await this.props.logoutCallback();
   }
 
   render() {
     return (
       <div>
-        <NavMenu loginCallback={this.loginCallback} logoutCallback={this.logoutCallback} />
+        <NavMenu loggedInState={this.props.loggedInState} loginCallback={this.loginCallback} logoutCallback={this.logoutCallback} />
+        <Alerts Alerts={this.props.Alerts}></Alerts>
         <Container tag="main">
           {this.props.children}
         </Container>
