@@ -3,79 +3,81 @@ using FantasyPowersLeague.Services;
 using FantasyPowersLeague.Models;
 using Microsoft.AspNetCore.Authorization;
 
-namespace FantasyPowersLeague.Controllers;
-
-[Authorize]
-[ApiController]
-[Route("api/identity")]
-public class IdentityController : ControllerBase
+namespace FantasyPowersLeague.Controllers
 {
-    private readonly ILogger<IdentityController> _logger;
-    private readonly IIdentityService _identityService;
 
-    public IdentityController(ILogger<IdentityController> logger, IIdentityService identityService)
+    [Authorize]
+    [ApiController]
+    [Route("api/identity")]
+    public class IdentityController : ControllerBase
     {
-        _logger = logger;
-        _identityService = identityService;
-    }
+        private readonly ILogger<IdentityController> _logger;
+        private readonly IIdentityService _identityService;
 
-    [HttpGet]
-    [Route("healthcheck")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Healthcheck()
-    {
-        return Ok("Hello!");
-    }
-
-    [AllowAnonymous]
-    [HttpPost]
-    [Route("google-login")]
-    [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GoogleLogin(GoogleLoginDto googleLoginDto)
-    {
-        try
+        public IdentityController(ILogger<IdentityController> logger, IIdentityService identityService)
         {
-            var loginResponse = await _identityService.LoginWithGoogle(googleLoginDto);
-            return Ok(loginResponse);
+            _logger = logger;
+            _identityService = identityService;
         }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex.Message);
-            return UnprocessableEntity();
-        }
-    }
 
-    [HttpPost]
-    [Route("refresh-token")]
-    [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> TokenRefresh(TokenDto tokenRefreshDto)
-    {
-        try
+        [HttpGet]
+        [Route("healthcheck")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Healthcheck()
         {
-            var refreshResponse = await _identityService.RefreshToken(tokenRefreshDto);
-            return Ok(refreshResponse);
+            return Ok("Hello!");
         }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex.Message);
-            return UnprocessableEntity();
-        } 
-    }
 
-    [HttpGet]
-    [Route("keep-alive")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult KeepAlive()
-    {
-        try
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("google-login")]
+        [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GoogleLogin(GoogleLoginDto googleLoginDto)
         {
-            return Ok();
+            try
+            {
+                var loginResponse = await _identityService.LoginWithGoogle(googleLoginDto);
+                return Ok(loginResponse);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return UnprocessableEntity();
+            }
         }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex.Message);
-            return UnprocessableEntity();
-        } 
-    }
 
+        [HttpPost]
+        [Route("refresh-token")]
+        [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> TokenRefresh(TokenDto tokenRefreshDto)
+        {
+            try
+            {
+                var refreshResponse = await _identityService.RefreshToken(tokenRefreshDto);
+                return Ok(refreshResponse);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return UnprocessableEntity();
+            } 
+        }
+
+        [HttpGet]
+        [Route("keep-alive")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult KeepAlive()
+        {
+            try
+            {
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return UnprocessableEntity();
+            } 
+        }
+
+    }
 }
