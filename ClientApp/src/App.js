@@ -69,7 +69,6 @@ const App = (props) => {
         })}
       </Routes>
     </Layout>
-    <button onClick={keepAlive}>boop</button>
     </>
   );
 }
