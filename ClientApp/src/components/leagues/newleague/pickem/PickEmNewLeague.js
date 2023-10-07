@@ -11,35 +11,46 @@ const PickEmNewLeague = (props) => {
     const [description, setDescription] = useState("");
     const [descriptionInvalid, setDescriptionInvalid] = useState(false);
     const [descriptionValidationMessage, setDescriptionValidationMessage] = useState("");
-    
+
+    const [retroactive, setRetroactive] = useState(false);
+    const [requireApproval, setRequireApproval] = useState(false);
+
 
     const validateAndSubmit = async () => {
-        
+
         var valid = true;
-        
-        if(name === ""){
+
+        if (name === "") {
             setNameValidationMessage("Need a name for the league there bud.");
             setNameInvalid(true);
             valid = false;
         }
 
-        if(name.length > 50){
+        if (name.length > 50) {
             setNameValidationMessage("Name too long.  Relax.");
             setNameInvalid(true);
             valid = false;
         }
 
-        if(description === ""){
+        if (description === "") {
             setDescriptionValidationMessage("Need a name for the description there pal.");
             setDescriptionInvalid(true);
             valid = false;
         }
-        else{
+        else {
             setDescriptionInvalid(false);
         }
 
-        if(valid){
-            await LeagueService.CreatePickEmLeague({ leagueType : 0, name : name, description : description});
+        if (valid) {
+            await LeagueService.CreatePickEmLeague({
+                leagueType: 0,
+                name: name,
+                description: description,
+                requireApproval: requireApproval,
+                pickEmDetails: {
+                  retroactive: retroactive
+                }
+            });
         }
     };
 
@@ -47,13 +58,21 @@ const PickEmNewLeague = (props) => {
         setDescription(event.target.value);
     };
 
+    const requireApprovalChange = event => {
+        setRequireApproval(event.target.checked);
+    }
+
+    const retroactiveChange = event => {
+        setRetroactive(event.target.checked);
+    }
+
 
     const nameValidation = event => {
         setName(event.target.value);
-        if(name.length > 50){
+        if (name.length > 50) {
             setNameValidationMessage("Name too long.  Relax.");
             setNameInvalid(true);
-        }else{
+        } else {
             setNameInvalid(false);
         }
     };
@@ -104,7 +123,7 @@ const PickEmNewLeague = (props) => {
                                         </Label>
                                         <Input type="switch"
                                             role="switch"
-                                            id="retroactive"></Input>
+                                            id="retroactive" onChange={retroactiveChange}></Input>
                                         <FormText>
                                             &nbsp;Allow users to go back and enter thier picks if we're mid season.  Otherwise pick up now.  As an admin you can go in a fill results.
                                         </FormText>
@@ -115,7 +134,7 @@ const PickEmNewLeague = (props) => {
                                         </Label>
                                         <Input type="switch"
                                             role="switch"
-                                            id="requireApproval"></Input>
+                                            id="requireApproval" onChange={requireApprovalChange}></Input>
                                         <FormText>
                                             &nbsp;If you don't require approval anybody can join the league instantly who has the Access Code.  Otherwise you'll need to approve the user once they ask to join.
                                         </FormText>

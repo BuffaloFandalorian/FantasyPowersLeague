@@ -23,9 +23,6 @@ const App = (props) => {
     }
   },[]);
 
-  const unauthorizedCallback = () => {
-
-  };
   
   const loginCallback = async (response) => {
     setLogginState(constants.LoginState.LoggingIn);

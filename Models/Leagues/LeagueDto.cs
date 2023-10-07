@@ -12,6 +12,8 @@ namespace FantasyPowersLeague.Models
         public string name { get; set; }
         public string description { get; set; }
         public string? accessCode { get; set; }
-
+        public bool requireApproval { get; set; }
+        public PickEmDetails? pickEmDetails { get; set; }
+        public List<LeagueMembers>? members { get; set; }
     }
 }

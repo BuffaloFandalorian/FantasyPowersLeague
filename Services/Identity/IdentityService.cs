@@ -12,6 +12,9 @@ namespace FantasyPowersLeague.Services
     {
         Task<LoginResultDto> LoginWithGoogle(GoogleLoginDto googleLoginDto);
         Task<LoginResultDto> RefreshToken(TokenDto tokenDto);
+        JwtSecurityToken ValidateToken(string token);
+        JwtSecurityToken ValidateToken(HttpRequest request);
+        
     }
     public class IdentityService : IIdentityService
     {
@@ -169,12 +172,10 @@ namespace FantasyPowersLeague.Services
             }
         }
 
-        [AllowAnonymous]
-        public async Task<LoginResultDto> RefreshToken(TokenDto tokenRefreshDto)
+        
+        public JwtSecurityToken ValidateToken(string token)
         {
-            try
-            {
-                var issuer = _config["Jwt:Issuer"];
+            var issuer = _config["Jwt:Issuer"];
                 var audience = _config["Jwt:Audience"];
                 var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
 
@@ -191,8 +192,23 @@ namespace FantasyPowersLeague.Services
                 };
 
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var claminsPrincipal = tokenHandler.ValidateToken(tokenRefreshDto.token, validationParameters, out SecurityToken securityToken);
+                tokenHandler.ValidateToken(token, validationParameters, out SecurityToken securityToken);
                 var jwtToken = (JwtSecurityToken)securityToken;
+                return jwtToken;
+        }
+
+        public JwtSecurityToken ValidateToken(HttpRequest request)
+        {
+            var authHeader = request.Headers["Authorization"].FirstOrDefault();
+            var token = authHeader.Split(" ")[1];
+            return ValidateToken(token);
+        }
+
+        public async Task<LoginResultDto> RefreshToken(TokenDto tokenRefreshDto)
+        {
+            try
+            {
+                var jwtToken = ValidateToken(tokenRefreshDto.token);
                 var jti = jwtToken.Claims.FirstOrDefault(x=>x.Type == JwtRegisteredClaimNames.Jti);
 
                 //we use token whitelisting.  First see if this token is whitelisted

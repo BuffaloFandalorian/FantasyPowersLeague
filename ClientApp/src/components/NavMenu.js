@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Collapse, DropdownItem, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, Nav } from 'reactstrap';
+import { Collapse, DropdownItem, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, Nav, Button, Spinner } from 'reactstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../images/logo.png';
 import LoginWithGoogle from './google/GoogleLogin';
@@ -28,27 +28,38 @@ const NavMenu = (props) => {
         <NavbarToggler onClick={toggleNavbar} className="mr-2" />
         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
           <Nav className="me-auto" navbar>
-          <ul className="navbar-nav flex-grow">
-          {(props.loggedInState === constants.LoginState.LoggedIn) &&
-            <UncontrolledDropdown nav inNavbar>
-            <DropdownToggle nav caret>
-              Leagues
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem onClick={() => navigate("/new-league")}>New</DropdownItem>
-              <DropdownItem>Join</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem header>My Leagues</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>}
-            {(props.loggedInState === constants.LoginState.LoggedIn) && <NavItem><NavLink onClick={() => navigate("/")}>Home</NavLink></NavItem>}
-            <NavItem>
-              {(props.loggedInState === constants.LoginState.LoggedOut) && <LoginWithGoogle onSuccessfulLogin={props.loginCallback} />}
-              {(props.loggedInState === constants.LoginState.LoggedIn) && <NavLink onClick={props.logoutCallback}>Logout</NavLink>}
-              {(props.loggedInState === constants.LoginState.LoggingIn) && <NavLink >Logging In...</NavLink>}
-            </NavItem>
+            <ul className="navbar-nav flex-grow">
+              {(props.loggedInState === constants.LoginState.LoggedIn) && <NavItem><NavLink onClick={() => navigate("/")}>Home</NavLink></NavItem>}
+              {(props.loggedInState === constants.LoginState.LoggedIn) &&
+                <UncontrolledDropdown nav inNavbar>
+                  <DropdownToggle nav caret>
+                    Leagues
+                  </DropdownToggle>
+                  <DropdownMenu right>
+                    <DropdownItem onClick={() => navigate("/new-league")}>New</DropdownItem>
+                    <DropdownItem>Join</DropdownItem>
+                    <DropdownItem divider />
+                    <DropdownItem header>My Leagues</DropdownItem>
+                  </DropdownMenu>
+                </UncontrolledDropdown>}
+              <NavItem>
+                {(props.loggedInState === constants.LoginState.LoggedOut) && <LoginWithGoogle onSuccessfulLogin={props.loginCallback} />}
+                {(props.loggedInState === constants.LoginState.LoggedIn) && <NavLink onClick={props.logoutCallback}>Logout</NavLink>}
+                {(props.loggedInState === constants.LoginState.LoggingIn) && <NavLink >
+                  <Button
+                    color="primary"
+                    disabled
+                  >
+                    <Spinner size="sm">
+                      Loading...
+                    </Spinner>
+                    <span>
+                      {' '}Loading
+                    </span>
+                  </Button></NavLink>}
+              </NavItem>
             </ul>
-            </Nav>
+          </Nav>
         </Collapse>
       </Navbar>
     </header>

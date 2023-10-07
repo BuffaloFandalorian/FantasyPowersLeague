@@ -50,7 +50,7 @@ namespace FantasyPowersLeague.Controllers
         {
             try
             {
-                var result = await _leaguesService.CreateLeagueAsync(leagueDto);
+                var result = await _leaguesService.CreateLeagueAsync(leagueDto, Request);
                 return Ok(result);
             }
             catch
