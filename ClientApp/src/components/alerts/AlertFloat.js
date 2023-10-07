@@ -1,4 +1,4 @@
-import { Toast, ToastBody, ToastHeader } from "reactstrap";
+import { Toast, ToastBody, ToastHeader, Col } from "reactstrap";
 import { useState } from "react";
 
 const AlertFloat = (props) => {
@@ -9,7 +9,7 @@ const AlertFloat = (props) => {
 
     return(
         <>
-            {show && <div class="col">
+            {show && <Col>
                 <Toast isOpen={show}>
                     <ToastHeader className="bg-warning" toggle={() => setShow(false)}>
                         You have been logged out
@@ -18,7 +18,8 @@ const AlertFloat = (props) => {
                         Please log back in to continue
                     </ToastBody>
                 </Toast>
-            </div>}
+                <br />
+            </Col>}
         </>
     );
 }

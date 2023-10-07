@@ -89,6 +89,7 @@ namespace FantasyPowersLeague.Services.ESPN
                         scoreboard.year = _activeYear;
                         scoreboard.isArchived = false;
                         scoreboard.lastSync = DateTime.UtcNow;
+                        scoreboard.id = id;
                         await UpdateScoreboardAsync(id, scoreboard);
                     }
                 }

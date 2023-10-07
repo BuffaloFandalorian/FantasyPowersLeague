@@ -17,7 +17,7 @@ export class NavMenu extends Component {
 
     this.state = {
       collapsed: true,
-      loggedInState : constants.LoginState.LoggedOut
+      loggedInState : this.props.loggedInState
     };
   }
 
@@ -51,9 +51,9 @@ export class NavMenu extends Component {
           <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
             <ul className="navbar-nav flex-grow">
               <NavItem>
-                {(this.state.loggedInState === constants.LoginState.LoggedOut) && <LoginWithGoogle onSuccessfulLogin={this.loginCallback} /> }
-                {(this.state.loggedInState === constants.LoginState.LoggedIn) && <NavLink onClick={()=> this.logoutCallback()}>Logout</NavLink>}
-                {(this.state.loggedInState === constants.LoginState.LoggingIn) && <NavLink >Logging In...</NavLink>}
+                {(this.props.loggedInState === constants.LoginState.LoggedOut) && <LoginWithGoogle onSuccessfulLogin={this.loginCallback} /> }
+                {(this.props.loggedInState === constants.LoginState.LoggedIn) && <NavLink onClick={()=> this.logoutCallback()}>Logout</NavLink>}
+                {(this.props.loggedInState === constants.LoginState.LoggingIn) && <NavLink >Logging In...</NavLink>}
               </NavItem>
             </ul>
           </Collapse>

@@ -11,6 +11,11 @@ const AuthInterceptor = {
         {
             const refresh = await IdentityService.RefreshToken();
 
+            if(refresh == null){
+                window.sessionStorage.clear();
+                return null;
+            }
+
             if(refresh.status !== null){
                 return refresh;
             }

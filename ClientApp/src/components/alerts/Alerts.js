@@ -1,10 +1,10 @@
-import { Container } from "reactstrap";
+import { Container,Row } from "reactstrap";
 const Alerts = (props) => {
     return (
         <>
-        <div class="row row-cols-4">
+        <Row class="row row-cols-4">
             {props.Alerts}
-        </div>
+        </Row>
         </>
     )
 }

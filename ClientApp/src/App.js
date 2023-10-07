@@ -1,50 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import AppRoutes from './AppRoutes';
+import { Route, Routes, useNavigate } from 'react-router-dom';
+import Home from './components/Home'
 import { Layout } from './components/Layout';
 import IdentityService from './services/IdentityService';
 import constants from './models/constants';
-import AlertFloat from './components/AlertFloat';
+import AlertFloat from './components/alerts/AlertFloat';
 import './custom.css';
+import NewLeagueBuilder from './components/leagues/newleague/NewLeagueBuilder';
+import AuthGuard from './components/shared/AuthGuard';
 
 const App = (props) => {
 
+  const navigate = useNavigate();
   const displayName = App.name;
   const [loggedIn, setLogginState] = useState(constants.LoginState.LoggedOut);
   const [alerts, setAlerts] = useState([]);
 
   useEffect(()=>{
-    const timer = window.setInterval(() => checkLoggedIn(), 10000);
-    return () => window.clearInterval(timer);
-  });
-
-  const keepAlive = () => {
-    if(window.sessionStorage.getItem("loggedIn") == constants.LoginState.LoggedIn){
-      IdentityService.KeepAlive();
+    //check session on page reload
+    if(sessionStorage.getItem("loggedIn") == 1){
+      setLogginState(constants.LoginState.LoggedIn);
     }
-  }
+  },[]);
 
-  const checkLoggedIn = () =>{
-    const currentState = window.sessionStorage.getItem("loggedIn");
-    if(currentState == null){
-      setLogginState(constants.LoginState.LoggedOut);
-      window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedOut);
-    }
-  }
+  const unauthorizedCallback = () => {
+
+  };
   
   const loginCallback = async (response) => {
-    //this.setState({ loggedInState : constants.LoginState.LoggingIn });
     setLogginState(constants.LoginState.LoggingIn);
     window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggingIn);
     const googleLogin = await IdentityService.LoginGoogle(response.clientId, response.credential);
     if(googleLogin){
       setLogginState(constants.LoginState.LoggedIn);
       window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedIn);
+      navigate("/");
       return constants.LoginState.LoggedIn;
     }
     else{
       setLogginState(constants.LoginState.LoggedOut);
       window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedOut);
+      navigate("/");
       //todo present error
       return constants.LoginState.LoggedOut;
     }
@@ -56,6 +52,7 @@ const App = (props) => {
     window.sessionStorage.setItem("loggedIn", constants.LoginState.LoggedOut);
     setAlerts([]);
     setAlerts([...alerts, <AlertFloat />]);
+    navigate("/");
     return constants.LoginState.LoggedOut;
   }
 
@@ -63,10 +60,8 @@ const App = (props) => {
     <>
     <Layout Alerts={alerts} loggedInState={loggedIn} loginCallback={loginCallback} logoutCallback={logoutCallback}>
       <Routes>
-        {AppRoutes.map((route, index) => {
-          const { element, ...rest } = route;
-          return <Route key={index} {...rest} element={element} />;
-        })}
+        <Route path="/" element={<Home loggedIn={loggedIn} />} />
+        <Route path="/new-league" element={<AuthGuard unauthorizedCallback={logoutCallback} component={<NewLeagueBuilder />} loggedIn={loggedIn} />} />
       </Routes>
     </Layout>
     </>

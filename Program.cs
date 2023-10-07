@@ -19,6 +19,13 @@ builder.Services.AddTransient<IUserDatabase, UserDatabase>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IESPNDatabase, ESPNDatabase>();
 builder.Services.AddSingleton<IESPNService, ESPNService>();
+builder.Services.AddSingleton<ILeaguesService, LeaguesService>();
+builder.Services.AddTransient<ILeaguesDatabase, LeaguesDatabase>();
+
+//Policies
+builder.Services.AddAuthorization(options => {
+    options.AddPolicy("Admin", policy => policy.RequireClaim("Admin", "True"));
+});
 
 //Add Swagger
 builder.Services.AddSwaggerGen(c => {

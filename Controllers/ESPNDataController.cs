@@ -10,10 +10,10 @@ namespace FantasyPowersLeague.Controllers
     [Route("api/espn")]
     public class EspnController : ControllerBase
     {
-        private readonly ILogger<GamesController> _logger;
+        private readonly ILogger<EspnController> _logger;
         private readonly IESPNService _espnService;
         
-        public EspnController(ILogger<GamesController> logger, IESPNService eSPNService)
+        public EspnController(ILogger<EspnController> logger, IESPNService eSPNService)
         {
             _logger = logger;
             _espnService = eSPNService;
@@ -41,7 +41,8 @@ namespace FantasyPowersLeague.Controllers
                 return UnprocessableEntity();
             }
         }
-
+        
+        [Authorize(Policy = "Admin")]
         [HttpGet]
         [Route("scoreboards/refresh")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
