@@ -8,11 +8,11 @@ namespace FantasyPowersLeague.Services
     {
         Task<List<RefreshTokenDto>> GetRefreshTokensAsync();
         Task<RefreshTokenDto> GetRefreshTokenByJtiAsync(string Tokenname);
-        public Task<RefreshTokenDto> GetRefreshTokenAsync(string id);
-        public Task CreateRefreshTokenAsync(RefreshTokenDto newToken);
-        public Task UpdateRefreshTokenAsync(string id, RefreshTokenDto updatedToken);
-        public Task RemoveRefreshTokenAsync(string id);
-        public Task RemoveRefreshTokensAsync(string user);
+        Task<RefreshTokenDto> GetRefreshTokenAsync(string id);
+        Task CreateRefreshTokenAsync(RefreshTokenDto newToken);
+        Task UpdateRefreshTokenAsync(string id, RefreshTokenDto updatedToken);
+        Task RemoveRefreshTokenAsync(string id);
+        Task RemoveRefreshTokensAsync(string user);
     }
 
     public class RefreshTokenDatabase : IRefreshTokenDatabase

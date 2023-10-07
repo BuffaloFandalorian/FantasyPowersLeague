@@ -39,6 +39,18 @@ const IdentityService =  {
                 window.sessionStorage.clear();
             }
         });
+    },
+    Auth: async function(){
+        const response = await HttpClient.Get('api/identity/keep-alive');
+        if(response === null){
+            return false;
+        }
+        if(response.status === 200){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
 

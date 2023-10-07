@@ -19,7 +19,6 @@ namespace FantasyPowersLeague.Services
         private IConfiguration _config;
         private IUserService _userService;
         private IRefreshTokenService _refreshTokenService;
-        //private GoogleTokenVerifier _googleTokenVerifier;
 
         public IdentityService(
             ILogger<IdentityService> logger, 
@@ -34,7 +33,7 @@ namespace FantasyPowersLeague.Services
         }
 
         #region internal methods
-        protected GeneratedTokenDto GetJWTToken(AppIdentity appIdentity, bool isRefresh = false, int expirationInMinutes = 10)
+        protected GeneratedTokenDto GetJWTToken(UserDto appIdentity, bool isRefresh = false, int expirationInMinutes = 10)
         {
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
@@ -46,9 +45,10 @@ namespace FantasyPowersLeague.Services
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Sub, appIdentity.email),
-                    new Claim(JwtRegisteredClaimNames.Email, appIdentity.email),
-                    new Claim(JwtRegisteredClaimNames.Jti, jti.ToString())
+                    new Claim(JwtRegisteredClaimNames.Sub, appIdentity.username),
+                    new Claim(JwtRegisteredClaimNames.Email, appIdentity.username),
+                    new Claim(JwtRegisteredClaimNames.Jti, jti.ToString()),
+                    new Claim("Admin", appIdentity.isAdmin.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(expirationInMinutes),
 
@@ -72,7 +72,7 @@ namespace FantasyPowersLeague.Services
             };
         }
 
-        private async Task<string> GetOrRegisterUser(string username)
+        private async Task<UserDto> GetOrRegisterUser(string username)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace FantasyPowersLeague.Services
                     await _userService.CreateUserAsync(newUser);
                     user = await _userService.GetUserByUsernameAsync(username);
                 }
-                return user.id;
+                return user;
             }
             catch(Exception ex)
             {
@@ -121,19 +121,16 @@ namespace FantasyPowersLeague.Services
                     throw new Exception("No Email Address in Google Token");
                 }
 
-                var appIdentity = new AppIdentity 
-                {
-                    email = payload.Email
-                };
+                var user = await GetOrRegisterUser(payload.Email);
 
-                var generatedToken = GetJWTToken(appIdentity);
+                var generatedToken = GetJWTToken(user);
 
                 if(String.IsNullOrWhiteSpace(generatedToken.token))
                 {
                     throw new Exception("Token generated is null or whitespace.");
                 }
 
-                var refreshToken = GetJWTToken(appIdentity, true, 30);
+                var refreshToken = GetJWTToken(user, true, 30);
 
                 if(String.IsNullOrWhiteSpace(refreshToken.token))
                 {
@@ -147,9 +144,7 @@ namespace FantasyPowersLeague.Services
                     await _refreshTokenService.CreateRefreshTokenAsync(new RefreshTokenDto { jti = refreshToken.jti.ToString(), user = payload.Email });
                 }
 
-                var userId = await GetOrRegisterUser(payload.Email);
-
-                if(userId == null)
+                if(user == null)
                 {
                     throw new Exception("Error registering or fetching user");
                 }
@@ -161,7 +156,7 @@ namespace FantasyPowersLeague.Services
                 {
                      token = generatedToken.token,
                      expiration = generatedToken.expiration,
-                     userId = userId,
+                     userId = user.id,
                      refreshToken = refreshToken.token
                 };
 
@@ -208,13 +203,15 @@ namespace FantasyPowersLeague.Services
                 }
 
                 var jtiRecord = await _refreshTokenService.GetRefreshTokenByJtiAsync(jti.Value);
+
+                var user = await _userService.GetUserByUsernameAsync(jtiRecord.user);
                 
                 if(jtiRecord != null)
                 {
                     await _refreshTokenService.RemoveRefreshTokensAsync(jtiRecord.user); //expire all the existing tokens for this user
-                    var newRefreshToken = GetJWTToken(new AppIdentity { email = jtiRecord.user }, true, 30);
+                    var newRefreshToken = GetJWTToken(user, true, 30);
                     await _refreshTokenService.CreateRefreshTokenAsync(new RefreshTokenDto{ jti = newRefreshToken.jti.ToString(), user = jtiRecord.user});
-                    var newToken = GetJWTToken(new AppIdentity { email = jtiRecord.user }, false);
+                    var newToken = GetJWTToken(user, false);
                     return new LoginResultDto { refreshToken = newRefreshToken.token, token = newToken.token, userId = jtiRecord.user, expiration = newToken.expiration };
                 }
                 else
