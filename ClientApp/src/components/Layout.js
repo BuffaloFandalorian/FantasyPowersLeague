@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert, Card, Row, Col, Container } from 'reactstrap';
-import { NavMenu } from './NavMenu';
+import NavMenu from './NavMenu';
 import Alerts from './alerts/Alerts';
 
 export class Layout extends Component {
